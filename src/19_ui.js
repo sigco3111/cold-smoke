@@ -270,7 +270,7 @@ const UI = (() => {
     const C = Sky.cycle || 1440, min = Math.floor(((Sky.clock % C) + C) % C);
     const W = wxMod(); let wid = 'light';
     try { wid = W && W.shown ? W.shown() : (W && W.level) || 'light'; } catch (e) { }
-    const per = periodOf(min), sig = min + '|' + wid + '|' + per + '|' + (EN() ? 'e' : 'z');
+    const per = periodOf(min), sig = min + '|' + wid + '|' + per + '|' + (EN() ? 'e' : (I18N.ko && I18N.ko()) ? 'k' : 'z');
     if (sig === clkSig) { if (U.open) paintTune(); return; }
     clkSig = sig;
     const hh = Math.floor(min / 60), mm = min % 60;
@@ -384,7 +384,7 @@ const UI = (() => {
   }
   // 陡坡 · 28.4 s · 132 km/h ▲ · 飞行 38 m
   // the card of a run: its number and its name (in English the name is the big line, and the number stands alone over it)
-  function segCard(sg) { const n = (sg.idx + 1 < 10 ? '0' : '') + (sg.idx + 1); el.segCn.textContent = T(SEG_NAMES[sg.type] || ''); el.segEn.textContent = EN() ? n : n + ' · ' + (SEG_EN[sg.type] || ''); }
+  function segCard(sg) { const n = (sg.idx + 1 < 10 ? '0' : '') + (sg.idx + 1); el.segCn.textContent = T(SEG_NAMES[sg.type] || ''); el.segEn.textContent = EN() ? n : n + ' · ' + (SEG_EN[sg.type] || ''); /* (한국어판: the big line is Korean, the small one keeps the Latin name) */ }
   function splitLine(r) {
     const line = document.createElement('span'), add = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt) e.textContent = txt; line.appendChild(e); return e; };
     const fig = (lab, v, u) => { add('i', 'd', '·'); if (lab) add('em', 'k', lab); line.appendChild(document.createTextNode(v)); if (u) add('u', null, u); };
@@ -402,7 +402,7 @@ const UI = (() => {
   function dayShow(q) {
     const R = SP.run, F = [[Math.max(0, R.drop), 0, '落差 M'], R.dist < 1000 ? [Math.max(0, R.dist), 0, '距离 M'] : [R.dist / 1000, 1, '距离 KM'], [R.v * 3.6, 0, '极速 KM/H']];
     if (R.air > 0) F.push([R.air, 0, '飞行 M']);
-    el.dayK.textContent = (isDaily() ? (EN() ? 'TODAY\'S MOUNTAIN · ' : '今日之山 · ') : '') + 'DAY ' + q.day + (EN() ? '' : ' · ' + (q.rise ? 'SUNRISE' : 'SUNSET'));
+    el.dayK.textContent = (isDaily() ? (EN() ? 'TODAY\'S MOUNTAIN · ' : I18N.ko && I18N.ko() ? '오늘의 산 · ' : '今日之山 · ') : '') + 'DAY ' + q.day + ((EN() || (I18N.ko && I18N.ko())) ? '' : ' · ' + (q.rise ? 'SUNRISE' : 'SUNSET'));
     if (isDaily()) dbSave(true); el.dayT.textContent = T(q.rise ? '日出' : '日落');
     el.dayF.textContent = ''; const d = SP.day = { t: 0, f: [] };
     for (const [v, dp, lab] of F) { const w = document.createElement('div'), b = document.createElement('b'), s = document.createElement('span'); b.textContent = fmt(v, dp); s.textContent = T(lab); w.appendChild(b); w.appendChild(s); el.dayF.appendChild(w); d.f.push({ el: b, v, dp, k: -1 }); }
@@ -473,7 +473,7 @@ const UI = (() => {
       if (d.sec && b.parentNode === el.nav) { show(d.sec); return; }
       if (d.time) U.setTime(d.time); else if (d.seg) U.gotoKind(d.seg); else if (d.view) U.setView(d.view); else if (d.mtn) U.pickMountain(d.mtn); else if (d.new) U.newMountain(); else if (d.daily) U.daily();
       else if ('animal' in d) { U.animal(d.animal); U.menu(false); } else if (d.plane) { U.plane(); U.menu(false); }
-      else if (b === el.oSnd) U.sound(!Sound.on); else if (b === el.oFs) U.fullscreen(); else if (b === el.oLang) I18N.set(EN() ? 'zh' : 'en'); else if (b === el.oQ) { Quality.cycle(); paint(); }
+      else if (b === el.oSnd) U.sound(!Sound.on); else if (b === el.oFs) U.fullscreen(); else if (b === el.oLang) I18N.set(I18N.lang === 'zh' ? 'en' : I18N.lang === 'en' ? 'ko' : 'zh'); else if   /* (한국어판: 中文 → English → 한국어 cycle) */ (b === el.oQ) { Quality.cycle(); paint(); }
       else if (d.vn) { const V = varMod(); if (V) try { V.set(d.vn, d.vid); } catch (err) { console.warn(err); } paint(); }
       else if (d.vreset) { const V = varMod(); if (V && V.reset) try { V.reset(); } catch (err) { console.warn(err); } paint(); }
       else if (d.wx) U.setWeather(d.wx);
@@ -560,7 +560,7 @@ const UI = (() => {
   // (the old name of the open/close, kept for anything that still calls it)
   U.openSwitch = function (on) { if (on === false || (on == null && U.open)) U.menu(false); else U.menu(true); };
   // what a key changed, said once (the open menu shows it itself)
-  function say(k, v) { if (!el || U.open) return; el.sayK.textContent = EN() ? I18N.EN['say:' + k] || T(k) : k; el.sayV.textContent = T(v || ''); el.say.classList.add('on'); sayT = 2.4; }
+  function say(k, v) { if (!el || U.open) return; el.sayK.textContent = EN() ? I18N.EN['say:' + k] || T(k) : (I18N.ko && I18N.ko()) ? I18N.KO['say:' + k] || T(k) : k; el.sayV.textContent = T(v || ''); el.say.classList.add('on'); sayT = 2.4; }
   function flash(b) { if (!b) return; b.classList.add('hit'); clearTimeout(b._t); b._t = setTimeout(() => b.classList.remove('hit'), 1500); }
   // which of the named hours the clock is nearest to
   function hour() { const C = Sky.cycle, c = ((Sky.clock % C) + C) % C; let best = TIMES[0][0], bd = 1e9; for (const [id] of TIMES) { let d = Math.abs(c - Sky.times[id]); d = Math.min(d, C - d); if (d < bd) { bd = d; best = id; } } return best; }
@@ -596,7 +596,7 @@ const UI = (() => {
     el.oSnd.textContent = T(Sound.on ? '声音 开' : '声音 关'); el.oSnd.classList.toggle('on', !!Sound.on); el.oSnd.setAttribute('aria-pressed', Sound.on ? 'true' : 'false');
     const fsOK = !U.hh && fsAvail(), full = !!document.fullscreenElement;
     el.oFs.hidden = !fsOK; el.oFs.classList.toggle('on', full); el.oFs.textContent = T(full ? '退出全屏' : '全屏');
-    if (el.oLang) el.oLang.textContent = EN() ? '中文' : 'English';
+    if (el.oLang) el.oLang.textContent = I18N.lang === 'zh' ? 'English' : I18N.lang === 'en' ? '한국어' : '中文';
     if (el.oQ) { const q = T(Quality.label()); if (el.oQ.textContent !== q) el.oQ.textContent = q; el.oQ.classList.toggle('on', Quality.pick !== 'auto'); }
     paintVariants();
   }
@@ -784,7 +784,7 @@ const UI = (() => {
     return true;
   }
   U.newMountain = seed => !!U.dev && newMountain(seed);
-  function mtnWord(m) { return m ? (EN() ? m.en : m.zh) : ''; }
+  function mtnWord(m) { return m ? ((EN() || (I18N.ko && I18N.ko())) ? m.en : m.zh) : ''; }
   function sayMountain(n) {
     const m = typeof Course.mountainBySeed === 'function' && Course.mountainBySeed(n);
     if (m) say('山', mtnWord(m)); else if (isDaily()) say('今日之山', dayLabel()); else say('山', '#' + (n == null ? Course.seed : n));
@@ -832,7 +832,7 @@ const UI = (() => {
   function paintSkied() {
     if (!el || !el.skied) return;
     const list = mtnListed(), all = mtnAll();
-    const sig = (EN() ? 'en:' : 'zh:') + list.map(m => m.id + ':' + mtnWord(m) + ':' + mtnFigs(mtnRec(all, m.id))).join('|');
+    const sig = (EN() ? 'en:' : (I18N.ko && I18N.ko()) ? 'ko:' : 'zh:') + list.map(m => m.id + ':' + mtnWord(m) + ':' + mtnFigs(mtnRec(all, m.id))).join('|');
     if (sig !== mtnSig) {
       mtnSig = sig; el.skied.textContent = '';
       for (const m of list) {
@@ -851,7 +851,7 @@ const UI = (() => {
   // distance skied in one go from 出发, the top speed, the longest flight), kept in this browser until the day turns
   const canPlayDaily = () => U.dev /*native{*/ || !!(self.COLD_SMOKE?.nativeWindow && !self.COLD_SMOKE.spatial) /*}native*/;
   const isDaily = () => canPlayDaily() && typeof App.isDaily === 'function' && App.isDaily();
-  const dayLabel = () => App.dayLabel(App.today(), EN());
+  const dayLabel = () => App.dayLabel(App.today(), EN() ? 'en' : (I18N.ko && I18N.ko()) ? 'ko' : 'zh');
   U.daily = function () {
     if (!canPlayDaily() || typeof App.dailySeed !== 'function') return false;
     if (isDaily()) { say('今日之山', dayLabel()); return true; }
