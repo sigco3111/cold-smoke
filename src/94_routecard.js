@@ -16,7 +16,7 @@
 //   segs [{ s0, len, type }], names ['1 开阔大坡', ...], H(x, s) the height of the mountain, line '越野线', diff '标准', mountain '寒烟山',
 //   score (= t − ring bonus), t, bonus (s per ring passed), date (ms), seed (a number: the player and the moment)
 // (用户 2026-11-19 00:52 UTC: 中文模式出现了 Challenge → every word in the language of the moment) W: a word through the dictionary (00a_i18n.js)
-const RC_W = s => typeof I18N !== 'undefined' ? I18N.t(s) : s, RC_EN = () => typeof I18N !== 'undefined' && I18N.en();
+const RC_W = s => typeof I18N !== 'undefined' ? I18N.t(s) : s, RC_EN = () => typeof I18N !== 'undefined' && I18N.en(), RC_KO = () => typeof I18N !== 'undefined' && I18N.ko && I18N.ko();
 const RouteCard = self.RouteCard = (() => {
   const RC = {};
   const SONG = '"Noto Serif SC","Songti SC","STSong","Source Han Serif SC","Noto Serif CJK SC",serif';
@@ -73,14 +73,14 @@ const RouteCard = self.RouteCard = (() => {
     if (o.shade) { const gr = g.createLinearGradient(0, H, 0, H * 0.55); gr.addColorStop(0, o.shade); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, H * 0.55, W, H * 0.45);
       const g2 = g.createLinearGradient(0, 0, 0, H * 0.24); g2.addColorStop(0, o.shade); g2.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = g2; g.fillRect(0, 0, W, H * 0.24); }
     const L = 72 * u, B = H - 64 * u;
-    g.fillStyle = rgb(ink); g.font = '400 ' + 46 * u + 'px ' + SONG; g.fillText(d.line, L, 104 * u);
-    const lw = g.measureText(d.line).width;
-    g.fillStyle = dim; g.font = '400 ' + 20 * u + 'px ' + SONG; spaced(g, d.diff + ' · ' + d.mountain, L + lw + 22 * u, 102 * u, 0.24 * 20 * u);
+    g.fillStyle = rgb(ink); g.font = '400 ' + 46 * u + 'px ' + SONG; g.fillText(RC_W(d.line), L, 104 * u);
+    const lw = g.measureText(RC_W(d.line)).width;
+    g.fillStyle = dim; g.font = '400 ' + 20 * u + 'px ' + SONG; spaced(g, RC_W(d.diff) + ' · ' + RC_W(d.mountain), L + lw + 22 * u, 102 * u, 0.24 * 20 * u);
     g.fillStyle = rgb(SUN); g.fillRect(L, 128 * u, 30 * u, 1.5 * u);
     // the time, large and light, the numbers under it
     g.fillStyle = rgb(ink); g.font = '300 ' + 112 * u + 'px ' + LAT; g.fillText(fmt(d.score), L - 4 * u, B - 64 * u);
-    const items = [[st.passed + ' / ' + st.tot, '光圈'], [(st.vmax * 3.6).toFixed(0) + ' km/h', '最快'], [(st.dist / 1000).toFixed(2) + ' km', '滑行'], [Math.round(st.drop).toLocaleString('en-US') + ' m', '落差']];
-    if (st.air > 0.5) items.push([st.air.toFixed(1) + ' s', '腾空']);
+    const items = [[st.passed + ' / ' + st.tot, RC_W('光圈')], [(st.vmax * 3.6).toFixed(0) + ' km/h', RC_W('最快')], [(st.dist / 1000).toFixed(2) + ' km', RC_W('滑行')], [Math.round(st.drop).toLocaleString('en-US') + ' m', RC_W('落差')]];
+    if (st.air > 0.5) items.push([st.air.toFixed(1) + ' s', RC_W('腾空')]);
     let x = L;
     for (const [v, k] of items) { g.fillStyle = rgb(ink, 0.92); g.font = '300 ' + 30 * u + 'px ' + LAT; g.fillText(v, x, B); const vw = g.measureText(v).width;
       g.fillStyle = faint; g.font = '400 ' + 15 * u + 'px ' + SONG; spaced(g, k, x, B + 30 * u, 0.3 * 15 * u); x += Math.max(vw, 60 * u) + 44 * u; }
@@ -219,7 +219,7 @@ const RouteCard = self.RouteCard = (() => {
     ends(g, X(0), Y(T[0][2]), X(L), Y(T[n - 1][2]), u);
     // heights at the two ends
     g.save(); g.fillStyle = 'rgba(244,247,251,.55)'; g.font = '500 ' + 12 * u + 'px ' + LAT; g.font = '400 ' + 14 * u + 'px ' + SONG; g.fillText('出发', X(0) + 14 * u, Y(yTop) - 14 * u);
-    g.textAlign = 'right'; g.fillText('终点  ↓ ' + Math.round(yTop - yBot).toLocaleString('en-US') + ' M', X(L) - 16 * u, Y(yBot) - 16 * u); g.restore();
+    g.textAlign = 'right'; g.fillText(RC_W('终点') + '  ↓ ' + Math.round(yTop - yBot).toLocaleString('en-US') + ' M', X(L) - 16 * u, Y(yBot) - 16 * u); g.restore();
     words(g, W, H, d, st, { shade: 'rgba(5,8,13,.6)' });
     frame(g, W, H, 'rgba(255,208,138,.35)');
   }
@@ -400,13 +400,13 @@ const RouteCard = self.RouteCard = (() => {
     // the panel: name, time, who and the place, the numbers, the key, a strip of speed over the run, the code
     g.textAlign = 'left'; g.textBaseline = 'alphabetic'; if (TH.panel) TH.panel(g, Lo.panel.map(v => v * u), u);
     const at2 = (k, i) => Lo[k][i] * u;
-    g.fillStyle = INK; g.font = '500 ' + at2('title', 2) + 'px ' + SONG; g.fillText(d.line, at2('title', 0), at2('title', 1));
-    g.fillStyle = GREY; g.font = '400 ' + 17 * u * (PT ? 1.2 : 1) + 'px ' + SONG; spaced(g, d.diff + ' · ' + d.mountain, at2('diff', 0), at2('diff', 1), 0.3 * 17 * u);
+    g.fillStyle = INK; g.font = '500 ' + at2('title', 2) + 'px ' + SONG; g.fillText(RC_W(d.line), at2('title', 0), at2('title', 1));
+    g.fillStyle = GREY; g.font = '400 ' + 17 * u * (PT ? 1.2 : 1) + 'px ' + SONG; spaced(g, RC_W(d.diff) + ' · ' + RC_W(d.mountain), at2('diff', 0), at2('diff', 1), 0.3 * 17 * u);
     g.fillStyle = RED; g.fillRect(at2('rule', 0), at2('rule', 1), 34 * u, 3 * u);
     g.fillStyle = INK; g.font = '300 ' + at2('time', 2) + 'px ' + LAT; g.fillText(fmt(d.score), at2('time', 0), at2('time', 1));
-    const bon = d.t - d.score; if (bon > 0.01) { g.fillStyle = GREY; g.font = '400 ' + 13 * u * (PT ? 1.25 : 1) + 'px ' + SONG; spaced(g, RC_W('用时') + ' ' + fmt(d.t) + '  ' + RC_W('光圈奖励') + ' −' + (+bon.toFixed(1)) + (RC_EN() ? ' s' : ' 秒'), at2('pen', 0), at2('pen', 1), 0.1 * 13 * u); }   // (rings 2026-11-19: score = time − ring bonus, no more penalty)
+    const bon = d.t - d.score; if (bon > 0.01) { g.fillStyle = GREY; g.font = '400 ' + 13 * u * (PT ? 1.25 : 1) + 'px ' + SONG; spaced(g, RC_W('用时') + ' ' + fmt(d.t) + '  ' + RC_W('光圈奖励') + ' −' + (+bon.toFixed(1)) + (RC_EN() ? ' s' : RC_KO() ? ' 초' : ' 秒'), at2('pen', 0), at2('pen', 1), 0.1 * 13 * u); }   // (rings 2026-11-19: score = time − ring bonus, no more penalty)
     // who skied it and where it stands (小红书: the player's nickname from the boards, later the login; the place on this line's board)
-    { const who = d.player || RC_W('雪友'), rk = d.rank != null ? (typeof d.rank === 'number' ? (RC_EN() ? '#' + d.rank : '第 ' + d.rank + ' 名') : String(d.rank)) : '', fs = at2('who', 2);
+    { const who = d.player || RC_W('雪友'), rk = d.rank != null ? (typeof d.rank === 'number' ? (RC_EN() ? '#' + d.rank : RC_KO() ? d.rank + '위' : '第 ' + d.rank + ' 名') : String(d.rank)) : '', fs = at2('who', 2);
       g.fillStyle = INK; g.font = '400 ' + fs + 'px ' + SONG; const ex = spaced(g, who, at2('who', 0), at2('who', 1), 0.12 * fs);
       if (rk) { g.fillStyle = RED; spaced(g, rk, ex + 14 * u, at2('who', 1), 0.12 * fs); } }
     const items = [[st.passed + '/' + st.tot, RC_W('光圈')], [(st.vmax * 3.6).toFixed(0), RC_W('最快 km/h')], [(st.dist / 1000).toFixed(2), RC_W('滑行 km')], [Math.round(st.drop).toLocaleString('en-US'), RC_W('落差 m')], [st.air.toFixed(1), RC_W('腾空 s')]];
@@ -498,7 +498,7 @@ const RouteCard = self.RouteCard = (() => {
     const HG = { x0: Math.floor((xa - 420) / 10) * 10, s0: Math.floor(sA / 10) * 10, step: 10, rows: [] }, NX = Math.ceil((xb + 420 - HG.x0) / 10) + 1;
     const TG = { x0: Math.floor((xa - 360) / 8) * 8, s0: Math.floor(sA / 8) * 8, step: 8, rows: [] }, TX = Math.ceil((xb + 360 - TG.x0) / 8) + 1;
     const cx = []; for (let s = Math.max(0, sA); s <= sB; s += 10) { const c = C.at(s); cx.push([s, c.cx, c.hw]); }
-    const mt = C.mountainBySeed && C.mountainBySeed(), d = { track: T, rings, segs, names: (o.names || []).map(s => { const m = /^(\d+ )(.+)$/.exec(s); return m ? m[1] + RC_W(m[2]) : RC_W(s); }), cx, line: RC_W(o.name || ''), diff: RC_W(({ a: '轻松', b: '标准', c: '难' })[o.diff] || ''), mountain: mt ? (RC_EN() ? mt.en || mt.zh : mt.zh) : typeof App !== 'undefined' && App.isDaily && App.isDaily() ? RC_W('今日之山') : '',
+    const mt = C.mountainBySeed && C.mountainBySeed(), d = { track: T, rings, segs, names: (o.names || []).map(s => { const m = /^(\d+ )(.+)$/.exec(s); return m ? m[1] + RC_W(m[2]) : RC_W(s); }), cx, line: RC_W(o.name || ''), diff: RC_W(({ a: '轻松', b: '标准', c: '难' })[o.diff] || ''), mountain: mt ? ((RC_EN() || RC_KO()) ? mt.en || mt.zh : mt.zh) : typeof App !== 'undefined' && App.isDaily && App.isDaily() ? RC_W('今日之山') : '',
       score: o.score, t: o.t, split: o.splits || [], date: r.date, seed: (Math.random() * 1e9) | 0, player: RC_W('雪友'), rank: null, ready: false };
     RCg.data = d; RCg.rec = null;
     const ent = { id: r.date + '_' + d.seed, line: d.line, diff: d.diff, score: d.score, date: r.date, data: d };
