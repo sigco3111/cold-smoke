@@ -28,7 +28,7 @@
 
 | 타이틀 화면 | 활강 화면 (오픈 볼) |
 | --- | --- |
-| ![한국어판 타이틀 화면](docs/media/title-ko.png) | ![한국어판 활강 HUD 화면](docs/media/gameplay-ko.png) |
+| ![한국어판 타이틀 화면](docs/media/7-title-ko.png) | ![한국어판 활강 HUD 화면](docs/media/8-gameplay-ko.png) |
 
 ## 한국어판 안내
 
