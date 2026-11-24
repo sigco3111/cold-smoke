@@ -354,7 +354,7 @@ const seedInHash = () => { if (!DEV) return 0; const h = location.hash || ''; if
 App.today = () => Math.floor((Date.now() + 8 * 3600e3) / 86400e3);
 App.dailySeed = (d = App.today()) => { let h = Math.imul(d ^ 0x2c1b3c6d, 0x297a2d39); h ^= h >>> 15; h = Math.imul(h, 0x85ebca6b); h ^= h >>> 13; h = Math.imul(h, 0xc2b2ae35); h ^= h >>> 16; return 100000 + (h >>> 0) % 900000; };
 App.isDaily = () => Course.seed === App.dailySeed();
-App.dayLabel = (d = App.today(), en = false) => { const t = new Date(d * 86400e3), m = t.getUTCMonth() + 1, n = t.getUTCDate(); return en ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][m - 1] + ' ' + n : m + '月' + n + '日'; };
+App.dayLabel = (d = App.today(), en = false) => { const t = new Date(d * 86400e3), m = t.getUTCMonth() + 1, n = t.getUTCDate(); return en === 'ko' ? m + '월 ' + n + '일' : en ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][m - 1] + ' ' + n : m + '月' + n + '日'; };
 App.randomSeed = () => { let n; do n = 100000 + Math.floor(Math.random() * 900000); while (n === Course.seed || n === App.dailySeed()); return n; };      // six figures: easy to read out
 // Setting the skier down where no terrain has been made yet (another mountain, or far off on this one) is about a second of work for the
 // terrain. It is done a slice a frame behind the dark veil the game opened from: the picture on screen is held while the veil closes,
